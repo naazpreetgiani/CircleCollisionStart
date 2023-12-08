@@ -13,7 +13,8 @@ let mouseMove = false;
 let player = {
   x: cnv.width / 2,
   y: cnv.height / 2,
-  radius: 20,
+  r: 20,
+  s: 5,
   color: "blue"
 };
 
@@ -26,7 +27,7 @@ function randomCircle() {
   return {
     x: randomInt(0, cnv.width),
     y: randomInt(0, cnv.height),
-    radius: randomInt(1, 5),
+    r: randomInt(1, 5),
     color: "green"
   }
 }
@@ -42,16 +43,26 @@ function draw() {
   ctx.fillStyle = "white";
   ctx.fillRect(0, 0, cnv.width, cnv.height);
 
-  // Draw Food
+ // Draw Food
   for (let i = 0; i < food.length; i++) {
-    drawCircle(food[i]);
+   drawCircle(food[i]);
+
+   // let food = food[i];
+   let d = Math.sqrt((food.x - player.x)**2 +(food.y - player.y)**2);
+    if (d < player.r + food.r) {
+     food.splice(i, 1);
+    }
+  
+   // if (food.length < 50) {
+   //   drawCircle.push(food[i]);
+   // }
   }
 
   // Draw Player
   ctx.lineWidth = 3;
   ctx.fillStyle = "blue";
   ctx.beginPath();
-  ctx.arc(player.x, player.y, player.radius, 0, 2 * Math.PI);
+  ctx.arc(player.x, player.y, player.r, 0, 2 * Math.PI);
   ctx.stroke();
 
   // Check if player collides with food
@@ -66,7 +77,7 @@ function drawCircle(aCircle) {
   ctx.lineWidth = 3;   
   ctx.fillStyle = "green";
   ctx.beginPath();
-  ctx.arc(aCircle.x, aCircle.y, aCircle.radius, 0, 2 * Math.PI)
+  ctx.arc(aCircle.x, aCircle.y, aCircle.r, 0, 2 * Math.PI)
   ctx.fill();
 }
 
@@ -80,7 +91,7 @@ function update() {
    let dy = player.y - food.y;
    let distance = Math.sqrt(dx * dx + dy * dy);
 
-   if (distance < player.radius + food.radius) {
+   if (distance < player.r + food.r) {
        // Collision detected, regenerate food
        food.x = getRandomPosition(cnv.width);
        food.y = getRandomPosition(cnv.height);
@@ -107,17 +118,12 @@ function mousemoveHandler(event) {
   mouseX = Math.round(event.clientX - cnvRect.left);
   mouseY = Math.round(event.clientY - cnvRect.top);
 
-  if (mouseMove) {
-    player.x = mouseX;
-    player.y = mouseY;
-  }
+  let run = mouseX - player.x;
+  let rise = mouseY - player.y;
+  let d = Math.sqrt((run)**2 +(rise)**2);
+  let dx = (run / d) * player.s;
+  let dy = (rise / d) * player.s;
 
-  // for (let i = 0; i < food.length; i++) {
-  //   if (mouseMove) {
-
-  //     circles.splice(i, 1);
-  //   }
-    
-  // }
-  
+  player.x += dx;
+  player.y += dy;
 }
