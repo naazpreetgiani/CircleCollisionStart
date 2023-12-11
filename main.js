@@ -18,9 +18,9 @@ let player = {
   color: "blue"
 };
 
-let food = [];
+let circle = [];
 for (let n = 1; n <= 50; n++) {
-  food.push(randomCircle());
+  circle.push(randomCircle());
 }
 
 function randomCircle() {
@@ -43,29 +43,30 @@ function draw() {
   ctx.fillStyle = "white";
   ctx.fillRect(0, 0, cnv.width, cnv.height);
 
- // Draw Food
-  for (let i = 0; i < food.length; i++) {
-   drawCircle(food[i]);
-
-   // let food = food[i];
-   let d = Math.sqrt((food.x - player.x)**2 +(food.y - player.y)**2);
-    if (d < player.r + food.r) {
-     food.splice(i, 1);
-    }
-  
-   // if (food.length < 50) {
-   //   drawCircle.push(food[i]);
-   // }
-  }
-
   // Draw Player
   ctx.lineWidth = 3;
   ctx.fillStyle = "blue";
   ctx.beginPath();
   ctx.arc(player.x, player.y, player.r, 0, 2 * Math.PI);
   ctx.stroke();
+ 
+ // Draw circle
+  for (let i = 0; i < circle.length; i++) {
+    drawCircle(circle[i]);
+    let food = circle[i];
+    let d = Math.sqrt((player.x - food.x)**2 + (player.y - food.y)**2);
+    if (d < player.r + food.r) {
+      console.log(circle.length);
+      circle.splice(i, 1);
+      player.r += (circle.r / 8);
+    }
+  
+   //  if (circle.length < 50) {
+   //    circle.push(circle[i]);
+   //   }
+  }
 
-  // Check if player collides with food
+  // Check if player collides with circle
 
   // Animation Loop
   requestAnimationFrame(draw);
@@ -86,16 +87,21 @@ function getRandomPosition(max) {
 }
 
 function update() {
-  // Check for collisions (e.g., player eating food)
-   let dx = player.x - food.x;
-   let dy = player.y - food.y;
-   let distance = Math.sqrt(dx * dx + dy * dy);
+  // for (let i = 0; i < circle.length; i++) {
+  //   let circle = circle[i];
+  //   // Check for collisions (e.g., player eating circle)
+  //  let dx = player.x - circle.x;
+  //  let dy = player.y - circle.y;
+  //  let distance = Math.sqrt(dx * dx + dy * dy);
 
-   if (distance < player.r + food.r) {
-       // Collision detected, regenerate food
-       food.x = getRandomPosition(cnv.width);
-       food.y = getRandomPosition(cnv.height);
-   }
+  //  if (distance < player.r + circle.r) {
+  //     // Collision detected, regenerate circle
+  //     circle.splice(i, 1);
+  //     circle.x = getRandomPosition(cnv.width);
+  //     circle.y = getRandomPosition(cnv.height);
+  //   }
+  // }
+  
 
   // Update player position or add more logic here
 
