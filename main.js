@@ -6,18 +6,21 @@ let ctx = cnv.getContext("2d");
 cnv.width = 800;
 cnv.height = 600;
 
+// Global Variables
 let mouseX = 0;
 let mouseY = 0;
 let mouseMove = false;
+let frameCount = 0;
 
+// Spawn Player
 let player = {
   x: cnv.width / 2,
   y: cnv.height / 2,
   r: 20,
-  s: 5,
-  color: "blue"
+  s: 3
 };
 
+// Food Array
 let circle = [];
 for (let n = 1; n <= 50; n++) {
   circle.push(randomCircle());
@@ -27,8 +30,8 @@ function randomCircle() {
   return {
     x: randomInt(0, cnv.width),
     y: randomInt(0, cnv.height),
-    r: randomInt(1, 5),
-    color: "green"
+    r: randomInt(2, 8),
+    c: randomRGB()
   }
 }
 
@@ -37,7 +40,7 @@ window.addEventListener("load", draw);
 
 function draw() {
   // LOGIC
-
+  frameCount++;
   // DRAWING
   // Background
   ctx.fillStyle = "white";
@@ -45,28 +48,41 @@ function draw() {
 
   // Draw Player
   ctx.lineWidth = 3;
-  ctx.fillStyle = "blue";
+  ctx.strokeStyle = "blue";
   ctx.beginPath();
   ctx.arc(player.x, player.y, player.r, 0, 2 * Math.PI);
   ctx.stroke();
  
- // Draw circle
+  // Draw food (circles)
   for (let i = 0; i < circle.length; i++) {
     drawCircle(circle[i]);
     let food = circle[i];
+
+    // Check if player collides with circle
     let d = Math.sqrt((player.x - food.x)**2 + (player.y - food.y)**2);
     if (d < player.r + food.r) {
+      player.r += (food.r / 8);
       console.log(circle.length);
       circle.splice(i, 1);
-      player.r += (circle.r / 8);
     }
-  
-   //  if (circle.length < 50) {
-   //    circle.push(circle[i]);
-   //   }
-  }
 
-  // Check if player collides with circle
+    // Add food on an interval
+    if (frameCount > 200) {
+     circle.push((randomCircle()));
+     frameCount = 0;
+    }  
+  }
+  
+  // Keep player in canvas boundaries
+  if (player.x < 0) {
+    player.x = 0;
+  } else if (player.x > cnv.width) {
+    player.x = cnv.width;
+  } else if (player.y < 0) {
+    player.y = 0;
+  } else if (player.y > cnv.height) {
+    player.y = cnv.height;
+  }
 
   // Animation Loop
   requestAnimationFrame(draw);
@@ -74,9 +90,8 @@ function draw() {
 
 //Circle Stuff
 
-function drawCircle(aCircle) {
-  ctx.lineWidth = 3;   
-  ctx.fillStyle = "green";
+function drawCircle(aCircle) { 
+  ctx.fillStyle = `${aCircle.c}`;
   ctx.beginPath();
   ctx.arc(aCircle.x, aCircle.y, aCircle.r, 0, 2 * Math.PI)
   ctx.fill();
@@ -84,32 +99,6 @@ function drawCircle(aCircle) {
 
 function getRandomPosition(max) {
   return Math.floor(Math.random() * max);
-}
-
-function update() {
-  // for (let i = 0; i < circle.length; i++) {
-  //   let circle = circle[i];
-  //   // Check for collisions (e.g., player eating circle)
-  //  let dx = player.x - circle.x;
-  //  let dy = player.y - circle.y;
-  //  let distance = Math.sqrt(dx * dx + dy * dy);
-
-  //  if (distance < player.r + circle.r) {
-  //     // Collision detected, regenerate circle
-  //     circle.splice(i, 1);
-  //     circle.x = getRandomPosition(cnv.width);
-  //     circle.y = getRandomPosition(cnv.height);
-  //   }
-  // }
-  
-
-  // Update player position or add more logic here
-
-  // Draw everything
-  ctx.clearRect(0, 0, cnv.width, cnv.height);
-
-  // Call update function recursively
-  requestAnimationFrame(update);
 }
 
 // Event Stuff
